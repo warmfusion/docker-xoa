@@ -2,10 +2,9 @@ FROM node:argon-wheezy
 
 RUN npm i -g npm
 
-#TODO: Mash these into a single command
-RUN apt-get update
-RUN apt-get install -y build-essential libpng-dev git python-minimal
-
+RUN apt-get update && \
+    apt-get install -y build-essential libpng-dev git python-minimal && \
+    apt-get autoremove -qq && apt-get clean && rm -rf /usr/share/doc /usr/share/man /var/log/* /tmp/*
 
 # Prepare for configuration...
 RUN mkdir /etc/xo-server
