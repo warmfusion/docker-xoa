@@ -116,7 +116,7 @@ http:
 
 # Connection to the Redis server.
 redis:
-  uri: 'redis://xoa-redis:6379/'
+  uri: 'redis://xoa-redis:6379'
 
 # Directory containing the database of XO.
 # Currently used for logs.
