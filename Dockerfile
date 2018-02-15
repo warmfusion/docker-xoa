@@ -1,35 +1,25 @@
-FROM node:argon-wheezy
+FROM node:latest
 
-RUN npm i -g npm
 
 RUN apt-get update && \
-    apt-get install -y build-essential libpng-dev git python-minimal && \
+    apt-get install -y build-essential libpng-dev git python-minimal redis-server && \
     apt-get autoremove -qq && apt-get clean && rm -rf /usr/share/doc /usr/share/man /var/log/* /tmp/*
 
 # Prepare for configuration...
-RUN mkdir /etc/xo-server
+RUN mkdir /etc/xen-orchestra
 # lets enable SSL mode using self-signed certificates
-RUN openssl genrsa -out /etc/xo-server/xoa_local.key 2048  && \
-    openssl req -new -x509 -key /etc/xo-server/xoa_local.key -out /etc/xo-server/xoa_local.crt -days 3650 -subj /CN=xoa.local
+RUN openssl genrsa -out /etc/xen-orchestra/xoa_local.key 2048  && \
+    openssl req -new -x509 -key /etc/xen-orchestra/xoa_local.key -out /etc/xen-orchestra/xoa_local.crt -days 3650 -subj /CN=xoa.local
 
+RUN git clone -b master http://github.com/vatesfr/xen-orchestra /app/xen-orchestra
 
+RUN cd /app/xen-orchestra  && yarn && yarn build
+COPY config.yaml /app/xen-orchestra/packages/xo-server/.xo-server.yaml
 
-RUN git clone -b stable http://github.com/vatesfr/xo-server /app/xo-server && \
-    git clone -b stable http://github.com/vatesfr/xo-web /app/xo-web
-
-RUN cd /app/xo-server  && npm install && npm run build
-RUN cd /app/xo-web     && npm install && npm run build
-
-
-
-
-COPY config.yaml /etc/xo-server/config.yaml
-
-VOLUME /etc/xo-server
+RUN mkdir /var/log/redis && chown redis:redis /var/log/redis
 
 EXPOSE 80
 EXPOSE 443
-WORKDIR /app/xo-server
-CMD ["npm", "start"]
-
-
+WORKDIR /app/xen-orchestra/packages/xo-server/
+ENTRYPOINT ["/bin/bash", "-c"]
+CMD ["service redis-server start && yarn start"]
