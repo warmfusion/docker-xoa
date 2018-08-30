@@ -1,8 +1,8 @@
-FROM node:latest
+FROM node:8.11-stretch
 
-
+RUN npm install --global yarn
 RUN apt-get update && \
-    apt-get install -y build-essential libpng-dev git python-minimal redis-server && \
+    apt-get install -y build-essential redis-server libpng-dev git python-minimal libvhdi-utils lvm2 && \
     apt-get autoremove -qq && apt-get clean && rm -rf /usr/share/doc /usr/share/man /var/log/* /tmp/*
 
 # Prepare for configuration...
@@ -13,7 +13,7 @@ RUN openssl genrsa -out /etc/xen-orchestra/xoa_local.key 2048  && \
 
 RUN git clone -b master http://github.com/vatesfr/xen-orchestra /app/xen-orchestra
 
-RUN cd /app/xen-orchestra  && yarn && yarn build
+RUN cd /app/xen-orchestra && yarn  && yarn build
 COPY config.yaml /app/xen-orchestra/packages/xo-server/.xo-server.yaml
 
 RUN mkdir /var/log/redis && chown redis:redis /var/log/redis
