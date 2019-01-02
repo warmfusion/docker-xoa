@@ -1,4 +1,4 @@
-FROM node:8.11-stretch
+FROM node:8.12-stretch
 
 RUN npm install --global yarn
 RUN apt-get update && \
